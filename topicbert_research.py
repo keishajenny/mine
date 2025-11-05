@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # ----------------------------------------------------------
-# 1️⃣ LOAD DATA
+#  LOAD DATA
 # ----------------------------------ini------------------------
 df = pd.read_csv("issues_unlabeled.csv")
 print(f"Total issues (unlabelled): {len(df)}")
@@ -29,14 +29,14 @@ print(f"Total issues: {len(df)}")
 df["timestamp"] = range(1, len(df) + 1)
 
 # ----------------------------------------------------------
-# 2️⃣ TRANSFORMER (BERT EMBEDDING)
+#  TRANSFORMER (BERT EMBEDDING)
 # ----------------------------------------------------------
 print("\nMenghitung embedding dengan Sentence-BERT...")
 model = SentenceTransformer("all-MiniLM-L6-v2")
 df["embedding"] = df["text"].apply(lambda x: model.encode(x))
 
 # ----------------------------------------------------------
-# 3️⃣ MEMORY GRAPH (MENGINGAT DAN MELUPAKAN)
+#  MEMORY GRAPH (MENGINGAT DAN MELUPAKAN)
 # ----------------------------------------------------------
 G = nx.Graph()
 tau = 200  # tingkat “daya ingat” (semakin besar = makin lama diingat)
@@ -64,7 +64,7 @@ def apply_forgetting(G, current_time, tau=200):
             G.remove_edge(u, v)
 
 # ----------------------------------------------------------
-# 4️⃣ GRAPH UPDATE RULES (U, I, M, S)
+#  GRAPH UPDATE RULES (U, I, M, S)
 # ----------------------------------------------------------
 clusters = {}  # {id_cluster: set_of_words}
 
@@ -86,7 +86,7 @@ def update_clusters(G, text):
         clusters[target].update(words)
 
 # ----------------------------------------------------------
-# 5️⃣ PROSES DATA SECARA BERTAHAP (SIMULASI STREAMING)
+#  PROSES DATA SECARA BERTAHAP (SIMULASI STREAMING)
 # ----------------------------------------------------------
 for t, issue in enumerate(df.itertuples(), start=1):
     add_to_memory_graph(G, issue.text, t)
@@ -96,7 +96,7 @@ for t, issue in enumerate(df.itertuples(), start=1):
         print(f"Processed {t} issues... Memory Graph edges: {G.number_of_edges()}")
 
 # ----------------------------------------------------------
-# 6️⃣ TOPIC EXTRACTION (SCORING & KEYWORDS)
+#  TOPIC EXTRACTION (SCORING & KEYWORDS)
 # ----------------------------------------------------------
 print("\n🔍 Mengekstrak kata penting dari setiap cluster...")
 
@@ -115,7 +115,7 @@ for cid, words_c in clusters.items():
 print(f"Total topik terdeteksi: {len(topic_keywords)}")
 
 # ----------------------------------------------------------
-# 7️⃣ VISUALISASI MEMORY GRAPH
+#  VISUALISASI MEMORY GRAPH
 # ----------------------------------------------------------
 print("\nMenampilkan visualisasi Memory Graph...")
 plt.figure(figsize=(10, 8))
@@ -138,13 +138,13 @@ plt.axis("off")
 # langsung simpan hasilnya ke file
 plt.savefig("memory_graph.png", dpi=300, bbox_inches="tight")
 plt.close()
-print("\n✅ Memory Graph disimpan ke 'memory_graph.png'")
+print("\n Memory Graph disimpan ke 'memory_graph.png'")
 
 nx.write_gexf(G, "memory_graph.gexf")
-print("✅ Struktur graf juga disimpan ke 'memory_graph.gexf' (bisa dibuka di Gephi)")
+print(" Struktur graf juga disimpan ke 'memory_graph.gexf' (bisa dibuka di Gephi)")
 
 # ----------------------------------------------------------
-# 8️⃣ SIMPAN HASIL
+#  SIMPAN HASIL
 # ----------------------------------------------------------
 topics_df = pd.DataFrame([
     {"topic_id": cid, "keywords": ", ".join(words)}
@@ -152,4 +152,4 @@ topics_df = pd.DataFrame([
 ])
 
 topics_df.to_csv("topicbert_research.csv", index=False)
-print("\n✅ Hasil disimpan di 'topicbert_research.csv'")
+print("\n Hasil disimpan di 'topicbert_research.csv'")
